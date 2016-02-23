@@ -1,4 +1,8 @@
 {
+  "name": "stringifytofile",
+  "version": "0.1.0",
+  "author": "Sergio Moura <sergio@moura.us>",
+  "description": "Stringifies javascript objects to the filesystem.",
   "dependencies": {
     "async": "^1.5.2"
   }

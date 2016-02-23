@@ -6,8 +6,7 @@ var async = require('async');
 // This is EXTREMELY slow, but does not use as much memory as fs.writeFile(fn, JSON.stringify()...)
 // Maybe adapt this: http://docs.sencha.com/touch/1.1.1/source/JSON.html
 
-function stringifyToFile(filename, object, replacer, space, callback) {
-	var fd = null;
+function stringifyToStream(stream, object, replacer, space, callback) {
 	var size = 0;
 
 	var write = function(str, cb) {
@@ -74,20 +73,24 @@ function stringifyToFile(filename, object, replacer, space, callback) {
 		}
 	};
 
-	var stream = fs.createWriteStream(filename, { flags: 'w' });
 	stringify(object, function() {
-		stream.end();
-		callback(null, size);
+		nextTick(function() {
+			callback(null, size);
+		})
 	});
-
-	/*
-	fs.open(filename, 'w', function(err, _fd) {
-		fd = _fd;
-		stringify(object, function() {
-			fs.close(fd, callback);
-		});
-	});
-	*/
 }
 
+function stringifyToFile(filename, object, replacer, space, callback) {
+	var stream = fs.createWriteStream(filename, { flags: 'w' });
+	stringifyToStream(stream, function(err, size) {
+		stream.end();
+		nextTick(function() {
+			callback(err, size);
+		});
+	})
+}
+
+stringifyToFile.stream = stringifyToStream;
+
 module.exports = stringifyToFile;
+

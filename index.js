@@ -69,12 +69,12 @@ function stringifyToStream(stream, object, replacer, space, callback) {
 				stringifyObj(x, cb);
 		}
 		else {
-			console.log("unhandled type: " + typeof(x));
+			throw(new Error("unhandled type: " + typeof(x)));
 		}
 	};
 
 	stringify(object, function() {
-		nextTick(function() {
+		process.nextTick(function() {
 			callback(null, size);
 		})
 	});
@@ -82,9 +82,9 @@ function stringifyToStream(stream, object, replacer, space, callback) {
 
 function stringifyToFile(filename, object, replacer, space, callback) {
 	var stream = fs.createWriteStream(filename, { flags: 'w' });
-	stringifyToStream(stream, function(err, size) {
+	stringifyToStream(stream, object, replacer, space, function(err, size) {
 		stream.end();
-		nextTick(function() {
+		process.nextTick(function() {
 			callback(err, size);
 		});
 	})
@@ -93,4 +93,3 @@ function stringifyToFile(filename, object, replacer, space, callback) {
 stringifyToFile.stream = stringifyToStream;
 
 module.exports = stringifyToFile;
-
